@@ -53,14 +53,14 @@ describe('AuthService', () => {
     expect(hash).toBeDefined();
   });
 
-  it('throws and error if user signs up with email that is in use', async (done) => {
+  it('throws and error if user signs up with email that is in use', async () => {
     fakeUsersService.find = () =>
       Promise.resolve([{ id: 1, email: 'a', password: '1' } as User]);
 
     try {
       await service.signup('afsdfsd@gmail.com', 'fsd');
     } catch (err) {
-      // done();
+      console.log(err);
     }
   });
 });

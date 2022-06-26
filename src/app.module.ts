@@ -6,15 +6,30 @@ import { ReportsModule } from './reports/reports.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/users.entity';
 import { Report } from './reports/reports.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    //
-    TypeOrmModule.forRoot({
-      type: 'sqlite', //selektujemo sqlite kao bazu
-      database: 'db.sqlite', //ime baze
-      entities: [User, Report], //entiteti koji ce ici u bazu
-      synchronize: true, //automatska migracija sa bazom prilikom promene entiteta, SAMO U DEV ENV, KASNIJE OBAVEZNO RUCNO PRAVITI MIGRACIJE !!
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+    }),
+    // TypeOrmModule.forRoot({
+    //   type: 'sqlite', //selektujemo sqlite kao bazu
+    //   database: 'db.sqlite', //ime baze
+    //   entities: [User, Report], //entiteti koji ce ici u bazu
+    //   synchronize: true, //automatska migracija sa bazom prilikom promene entiteta, SAMO U DEV ENV, KASNIJE OBAVEZNO RUCNO PRAVITI MIGRACIJE !!
+    // }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          type: 'sqlite',
+          database: config.get<string>('DB_NAME'),
+          entities: [User, Report],
+          synchronize: true,
+        };
+      },
     }),
     UsersModule,
     ReportsModule,
